@@ -93,5 +93,32 @@ def get_spotify_tracks(query, token, limit=25):
             "primary_genre": None
         })
     return tracks
+
+
+def store_spotify_data(cursor, track_list, feature_list):
+    """
+    Insert data into:
+      - tracks
+      - artists
+      - audio_features
+    """
+    for t in track_list:
+        cursor.execute("""
+            INSERT OR IGNORE INTO artists (artist_id, name)
+            VALUES (?, ?)
+        """, (t["artist_id"], t["artist"]))
+
+        cursor.execute("""
+            INSERT OR REPLACE INTO tracks (track_id, name, artist_id, release_year)
+            VALUES (?, ?, ?, ?)
+        """, (t["id"], t["name"], t["artist_id"], t["release_year"]))
+
+    for f in feature_list:
+        cursor.execute("""
+            INSERT OR REPLACE INTO audio_features
+            (track_id, danceability, energy, tempo)
+            VALUES (?, ?, ?, ?)
+        """, (f["id"], f["danceability"], f["energy"], f["tempo"]))
+
 #function to search for tracks
 
